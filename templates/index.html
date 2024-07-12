@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр наград iCCup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Trajan+Pro:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>
+                <span class="glowing-text">Награды</span> iCCup
+            </h1>
+
+            <form id="nickname-form">
+                <label for="nickname"><div style="padding: 15px; font-size: 22px">Введите никнейм:</div></label>
+                <input type="text" id="nickname" name="nickname" placeholder="Введите никнейм" required>
+                <button type="submit" style="font-size: 17px">Показать</button>
+            </form>
+
+            <div id="awards-container"></div>
+        </div>
+
+        <div class="bottom-image">
+            <img src="{{ url_for('static', filename='dota.jpg') }}" alt="Фон">
+            <div class="overlay"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('nickname-form');
+        const awardsContainer = document.getElementById('awards-container');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const nickname = document.getElementById('nickname').value;
+            const response = await fetch(`/get_awards?nickname=${nickname}`);
+            const awards = await response.json();
+
+            awardsContainer.innerHTML = '';
+
+            if (awards.length === 0) {
+                awardsContainer.innerHTML = '<p>У профиля нет наград или профиль не найден.</p>';
+            } else {
+                awards.forEach(award => {
+                    const awardElement = `
+                        <div class="award">
+                          <div class="award-inner">
+                            <div class="award-front">
+                                <img src="${award.image}" alt="${award.title}">
+                                <h4>${award.title}</h4>
+                            </div>
+                            <div class="award-back">
+                                <p>${award.reason}</p>
+                            </div>
+                          </div>
+                        </div>
+                    `;
+                    awardsContainer.innerHTML += awardElement;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
